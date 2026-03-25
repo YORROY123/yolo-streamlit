@@ -6,12 +6,12 @@ import numpy as np
 @st.cache_resource
 def load_model():
     import torch
-    try:
-        from ultralytics.nn.tasks import DetectionModel
-        torch.serialization.add_safe_globals([DetectionModel])
-    except Exception:
-        pass
-    return YOLO('yolov8m.pt')
+    import ultralytics.nn.tasks as tasks
+    original_load = torch.load
+    torch.load = lambda *args, **kwargs: original_load(*args, **{**kwargs, 'weights_only': False})
+    model = YOLO('yolov8m.pt')
+    torch.load = original_load
+    return model
 
 st.set_page_config(page_title="YOLOv8 物件辨識", page_icon="🤖")
 st.title("🤖 YOLOv8 物件辨識")
